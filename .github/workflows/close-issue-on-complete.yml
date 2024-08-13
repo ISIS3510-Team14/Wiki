@@ -14,11 +14,11 @@ jobs:
 
       - name: Get issue body
         id: get_issue_body
-        run: echo "::set-output name=body::$(jq -r .issue.body <<< '${{ github.event }}')"
+        run: echo "ISSUE_BODY=$(jq -r .issue.body <<< '${{ github.event }}')" >> $GITHUB_ENV
 
       - name: Check if all tasks are completed
         run: |
-          if [[ "${{ steps.get_issue_body.outputs.body }}" != *"- [ ]"* ]]; then
+          if [[ "${{ env.ISSUE_BODY }}" != *"- [ ]"* ]]; then
             echo "All tasks completed. Closing the issue."
             gh issue close ${{ github.event.issue.number }}
           else
