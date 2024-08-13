@@ -30,9 +30,6 @@ jobs:
         id: get_issue_body
         run: echo "ISSUE_BODY=$(jq -r .issue.body <<< '${{ github.event }}')" >> $GITHUB_ENV
 
-      - name: Debug ISSUE_BODY
-        run: echo "Issue Body: ${{ env.ISSUE_BODY }}"
-
       - name: Check if all tasks are completed
         run: |
           if [[ "${{ env.ISSUE_BODY }}" != *"- [ ]"* ]]; then
