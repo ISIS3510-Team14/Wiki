@@ -12,9 +12,26 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v3
 
+      - name: Verify GitHub CLI Installation
+        run: |
+          if ! command -v gh &> /dev/null
+          then
+            echo "GitHub CLI could not be found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y gh
+          else
+            echo "GitHub CLI is installed."
+          fi
+
+      - name: Set up GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
       - name: Get issue body
         id: get_issue_body
         run: echo "ISSUE_BODY=$(jq -r .issue.body <<< '${{ github.event }}')" >> $GITHUB_ENV
+
+      - name: Debug ISSUE_BODY
+        run: echo "Issue Body: ${{ env.ISSUE_BODY }}"
 
       - name: Check if all tasks are completed
         run: |
@@ -23,3 +40,9 @@ jobs:
             gh issue close ${{ github.event.issue.number }}
           else
             echo "There are still incomplete tasks. Issue will remain open."
+
+      - name: Debug Exit Code
+        run: echo "Exit code from the previous step: $?"
+      
+      - name: Debug GH CLI Version
+        run: gh --version
