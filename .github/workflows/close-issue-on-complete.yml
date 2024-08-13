@@ -8,11 +8,17 @@ on:
 jobs:
   close_issue:
     runs-on: ubuntu-latest
-    if: github.event.issue.body contains '- [ ]'
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Get issue body
+        id: get_issue_body
+        run: echo "::set-output name=body::$(jq -r .issue.body <<< '${{ github.event }}')"
+
       - name: Check if all tasks are completed
         run: |
-          if ! grep -q '\- \[ \]' <<<"${{ github.event.issue.body }}"; then
+          if [[ "${{ steps.get_issue_body.outputs.body }}" != *"- [ ]"* ]]; then
             echo "All tasks completed. Closing the issue."
             gh issue close ${{ github.event.issue.number }}
           else
