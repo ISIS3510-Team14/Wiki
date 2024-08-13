@@ -1,0 +1,19 @@
+name: Close Issue on Task Completion
+
+on:
+  issues:
+    types:
+      - edited
+
+jobs:
+  close_issue:
+    runs-on: ubuntu-latest
+    if: github.event.issue.body contains '- [ ]'
+    steps:
+      - name: Check if all tasks are completed
+        run: |
+          if ! grep -q '\- \[ \]' <<<"${{ github.event.issue.body }}"; then
+            echo "All tasks completed. Closing the issue."
+            gh issue close ${{ github.event.issue.number }}
+          else
+            echo "There are still incomplete tasks. Issue will remain open."
